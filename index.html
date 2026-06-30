@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YTS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Source+Serif+4:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;1,14..32,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap"
+        rel="stylesheet">
     <style>
         /* ponytail: Bareis + Nicolaus split-screen monochrome system */
         :root {
@@ -18,7 +21,13 @@
             --radius-full: 120px;
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background: var(--color-obsidian);
@@ -39,9 +48,9 @@
 
         /* — Left sidebar / control column — */
         .sidebar {
-            width: 40%;
-            min-width: 320px;
-            max-width: 480px;
+            width: 42%;
+            min-width: 340px;
+            max-width: 520px;
             border-right: 1px solid var(--color-bone);
             display: flex;
             flex-direction: column;
@@ -50,80 +59,78 @@
         }
 
         .sidebar-header {
-            padding: 20px 24px;
+            padding: 24px 28px;
             border-bottom: 1px solid var(--color-bone);
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .brand {
-            font-size: 64px;
-            line-height: 1;
-            font-weight: 400;
-            letter-spacing: -2px;
+            align-items: center;
+            gap: 16px;
         }
 
         .nav-pills {
             display: flex;
             gap: 7px;
-            padding-top: 8px;
+            flex-shrink: 0;
         }
 
-        /* — Search section — */
-        .search-section {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--color-bone);
-        }
         .search-pill {
-            width: 100%;
+            flex: 1;
             padding: 10px 20px;
             border-radius: var(--radius-full);
             border: 1px solid var(--color-bone);
             background: transparent;
             color: var(--color-bone);
             font-family: var(--font-lausanne);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 400;
             outline: none;
         }
-        .search-pill::placeholder { color: var(--color-ash); }
+
+        .search-pill::placeholder {
+            color: var(--color-ash);
+        }
 
         /* — Section headings — */
         .section-head {
-            padding: 16px 24px 10px;
+            padding: 20px 28px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
         .section-head h2 {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 400;
             line-height: 1;
         }
+
         .collapse-btn {
-            width: 36px; height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-full);
             border: 1px solid var(--color-bone);
             background: transparent;
             color: var(--color-bone);
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             line-height: 1;
         }
 
         /* — Genre filter grid — */
         .filter-grid {
-            padding: 0 24px 16px;
+            padding: 0 28px 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 7px;
+            gap: 8px;
             border-bottom: 1px solid var(--color-bone);
             overflow: hidden;
             transition: max-height 0.3s ease, padding 0.3s ease;
             max-height: 600px;
+            position: relative;
         }
+
         .filter-grid.collapsed {
             max-height: 0;
             padding-top: 0;
@@ -133,43 +140,31 @@
         .pill {
             display: inline-flex;
             align-items: center;
-            padding: 7px 13px;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             border: 1px solid var(--color-bone);
             background: transparent;
             color: var(--color-bone);
             font-family: var(--font-lausanne);
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 400;
             cursor: pointer;
             text-decoration: none;
             line-height: 1;
             white-space: nowrap;
         }
+
         .pill.active {
             background: var(--color-bone);
             color: var(--color-obsidian);
         }
+
         .pill.muted {
             border-color: var(--color-ash);
             color: var(--color-ash);
         }
 
-        /* — Sort & Quality sections — */
-        .sidebar-section {
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--color-bone);
-        }
-        .sidebar-section h3 {
-            font-size: 24px;
-            font-weight: 400;
-            margin-bottom: 10px;
-        }
-        .pill-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-        }
+
 
 
 
@@ -193,88 +188,159 @@
             cursor: pointer;
             overflow: hidden;
         }
+
         .movie-card img {
-            width: 100%; height: 340px;
-            object-fit: cover; display: block;
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            display: block;
             border-radius: 0;
             transition: opacity 0.2s;
         }
-        .movie-card:hover img { opacity: 0.75; }
+
+        .movie-card:hover img {
+            opacity: 0.75;
+        }
 
         .movie-card .overlay-pill {
-            position: absolute; top: 10px; left: 10px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
             padding: 5px 13px;
             border-radius: var(--radius-full);
             border: 1px solid var(--color-bone);
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             color: var(--color-bone);
-            font-size: 13px; line-height: 1;
+            font-size: 13px;
+            line-height: 1;
             pointer-events: none;
         }
+
         .movie-card .card-label {
-            position: absolute; bottom: 0; left: 0; right: 0;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 40px 12px 12px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
         }
+
         .movie-card .card-label h3 {
-            font-size: 15px; font-weight: 400;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             margin-bottom: 2px;
         }
+
         .movie-card .card-label p {
             font-family: var(--font-victor-serif);
-            font-style: italic;
-            font-size: 13px; color: var(--color-ash);
+            /* font-style: italic; */
+            font-size: 13px;
+            color: var(--color-ash);
         }
 
 
+        /* — Spinner — */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        .spinner-large {
+            width: 40px;
+            height: 40px;
+        }
+
+        .spinner-center {
+            margin: 60px auto;
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* — Modal — */
         #modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.92); z-index: 20;
-            justify-content: center; align-items: center;
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 20;
+            justify-content: center;
+            align-items: center;
         }
-        #modal.active { display: flex; }
+
+        #modal.active {
+            display: flex;
+        }
 
         .modal-content {
             background: var(--color-obsidian);
             border: 1px solid var(--color-bone);
-            max-width: 860px; width: 92%; max-height: 90vh;
+            max-width: 860px;
+            width: 92%;
+            max-height: 90vh;
             overflow-y: auto;
-            display: flex; gap: 0;
+            display: flex;
+            gap: 0;
             position: relative;
         }
 
         .close-btn {
-            position: absolute; top: 12px; right: 20px;
-            cursor: pointer; font-size: 28px; color: var(--color-ash);
-            z-index: 1; line-height: 1;
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 28px;
+            color: var(--color-ash);
+            z-index: 1;
+            line-height: 1;
         }
 
         #modalImg {
-            width: 280px; min-height: 400px;
-            object-fit: cover; display: block;
+            width: 280px;
+            min-height: 400px;
+            object-fit: cover;
+            display: block;
             border-radius: 0;
         }
 
         .modal-details {
-            flex: 1; padding: 24px;
+            flex: 1;
+            padding: 24px;
         }
+
         .modal-details h2 {
-            font-size: 36px; font-weight: 400;
+            font-size: 36px;
+            font-weight: 400;
             line-height: 1;
             margin-bottom: 13px;
         }
+
         .modal-genres {
-            display: flex; flex-wrap: wrap; gap: 7px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
             margin-bottom: 16px;
         }
+
         .modal-genres .pill {
-            font-size: 12px; padding: 5px 10px;
+            font-size: 12px;
+            padding: 5px 10px;
             border-color: var(--color-ash);
             color: var(--color-ash);
         }
+
         .modal-meta {
             font-family: var(--font-victor-serif);
             font-style: italic;
@@ -282,16 +348,22 @@
             font-size: 14px;
             margin-bottom: 16px;
         }
+
         .modal-desc {
-            font-size: 15px; line-height: 1.5;
+            font-size: 15px;
+            line-height: 1.5;
             color: var(--color-ash);
             margin-bottom: 24px;
         }
+
         #modalLinks {
-            display: flex; flex-wrap: wrap; gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             padding-top: 13px;
             border-top: 1px solid var(--color-bone);
         }
+
         .magnet-btn {
             display: inline-block;
             padding: 10px 20px;
@@ -300,62 +372,138 @@
             background: transparent;
             color: var(--color-bone);
             font-family: var(--font-lausanne);
-            font-size: 14px; font-weight: 400;
-            text-decoration: none; line-height: 1;
+            font-size: 14px;
+            font-weight: 400;
+            text-decoration: none;
+            line-height: 1;
         }
 
 
 
         /* — Scrollbar — */
-        .sidebar::-webkit-scrollbar, .content::-webkit-scrollbar { width: 0; }
+        .sidebar::-webkit-scrollbar,
+        .content::-webkit-scrollbar {
+            width: 0;
+        }
 
         /* — Mobile — */
         @media (max-width: 768px) {
-            body { overflow: auto; height: auto; }
-            .layout { flex-direction: column; height: auto; }
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .layout {
+                flex-direction: column;
+                height: auto;
+            }
+
             .sidebar {
-                width: 100%; max-width: 100%; min-width: 0;
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
                 border-right: none;
                 border-bottom: 1px solid var(--color-bone);
                 overflow-y: visible;
             }
-            .brand { font-size: 36px; }
-            .section-head h2 { font-size: 28px; }
-            .section-head { padding: 12px 16px 8px; }
-            .filter-grid { padding: 0 16px 12px; }
-            .sidebar-section { padding: 12px 16px; }
-            .sidebar-section h3 { font-size: 20px; margin-bottom: 8px; }
-            .sidebar-header { padding: 16px; }
-            .search-section { padding: 12px 16px; }
-            .pill { font-size: 13px; padding: 6px 11px; }
-            .content { overflow: visible; }
-            #movies { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-            .movie-card img { height: 220px; }
-            .movie-card .card-label { padding: 30px 8px 8px; }
-            .movie-card .card-label h3 { font-size: 13px; }
-            .movie-card .card-label p { font-size: 11px; }
-            .movie-card .overlay-pill { font-size: 11px; padding: 4px 10px; }
-            #modalImg { width: 100%; min-height: 260px; }
-            .modal-content { flex-direction: column; width: 96%; }
-            .modal-details { padding: 16px; }
-            .modal-details h2 { font-size: 24px; }
+
+            .section-head h2 {
+                font-size: 28px;
+            }
+
+            .section-head {
+                padding: 12px 16px 8px;
+            }
+
+            .filter-grid {
+                padding: 0 16px 12px;
+            }
+
+            .sidebar-section {
+                padding: 12px 16px;
+            }
+
+            .sidebar-section h3 {
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .sidebar-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .nav-pills {
+                padding-top: 0;
+            }
+
+            .pill {
+                font-size: 13px;
+                padding: 6px 11px;
+            }
+
+            .content {
+                overflow: visible;
+            }
+
+            #movies {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .movie-card img {
+                height: 220px;
+            }
+
+            .movie-card .card-label {
+                padding: 30px 8px 8px;
+            }
+
+            .movie-card .card-label h3 {
+                font-size: 13px;
+            }
+
+            .movie-card .card-label p {
+                font-size: 11px;
+            }
+
+            .movie-card .overlay-pill {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            #modalImg {
+                width: 100%;
+                min-height: 260px;
+            }
+
+            .modal-content {
+                flex-direction: column;
+                width: 96%;
+            }
+
+            .modal-details {
+                padding: 16px;
+            }
+
+            .modal-details h2 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="layout">
         <!-- Left sidebar / control column -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <span class="brand">YTS</span>
+                <input type="text" class="search-pill" id="searchInput" placeholder="Search title, actor, director...">
                 <div class="nav-pills">
                     <a class="pill" href="#" id="navBrowse">Browse</a>
                     <a class="pill" href="#" id="navTop">Top Rated</a>
                 </div>
-            </div>
-
-            <div class="search-section">
-                <input type="text" class="search-pill" id="searchInput" placeholder="Search title, actor, director...">
             </div>
 
             <div class="section-head">
@@ -384,27 +532,29 @@
                 <button class="pill" data-genre="western">Western</button>
             </div>
 
-            <div class="sidebar-section">
-                <h3>Sort</h3>
-                <div class="pill-row" id="sortPills">
-                    <button class="pill active" data-sort="date_added">Latest</button>
-                    <button class="pill" data-sort="rating">Rating</button>
-                    <button class="pill" data-sort="year">Year</button>
-                    <button class="pill" data-sort="title">Title</button>
-                    <button class="pill" data-sort="seeds">Seeds</button>
-                    <button class="pill" data-sort="download_count">Downloads</button>
-                </div>
+            <div class="section-head">
+                <h2>Sort</h2>
+                <button class="collapse-btn" id="collapseSort" aria-label="Toggle sort">−</button>
+            </div>
+            <div class="filter-grid" id="sortPills">
+                <button class="pill active" data-sort="date_added">Latest</button>
+                <button class="pill" data-sort="rating">Rating</button>
+                <button class="pill" data-sort="year">Year</button>
+                <button class="pill" data-sort="title">Title</button>
+                <button class="pill" data-sort="seeds">Seeds</button>
+                <button class="pill" data-sort="download_count">Downloads</button>
             </div>
 
-            <div class="sidebar-section">
-                <h3>Quality</h3>
-                <div class="pill-row" id="qualityPills">
-                    <button class="pill active" data-quality="">All</button>
-                    <button class="pill" data-quality="720p">720p</button>
-                    <button class="pill" data-quality="1080p">1080p</button>
-                    <button class="pill" data-quality="2160p">4K</button>
-                    <button class="pill" data-quality="3D">3D</button>
-                </div>
+            <div class="section-head">
+                <h2>Quality</h2>
+                <button class="collapse-btn" id="collapseQuality" aria-label="Toggle quality">−</button>
+            </div>
+            <div class="filter-grid" id="qualityPills">
+                <button class="pill active" data-quality="">All</button>
+                <button class="pill" data-quality="720p">720p</button>
+                <button class="pill" data-quality="1080p">1080p</button>
+                <button class="pill" data-quality="2160p">4K</button>
+                <button class="pill" data-quality="3D">3D</button>
             </div>
 
 
@@ -423,7 +573,7 @@
     <div id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
-            <img id="modalImg" src="" alt="Poster">
+            <img id="modalImg" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
             <div class="modal-details">
                 <h2 id="modalTitle"></h2>
                 <div class="modal-genres" id="modalGenres"></div>
@@ -435,87 +585,92 @@
     </div>
 
     <script>
-    // — API —
-    const BASE_URL = 'https://movies-api.accel.li/api/v2';
+        // — API —
+        const BASE_URL = 'https://movies-api.accel.li/api/v2';
 
-    const trackers = [
-        'udp://tracker.opentrackr.org:1337/announce',
-        'udp://tracker.torrent.eu.org:451/announce',
-        'udp://tracker.dler.org:6969/announce',
-        'udp://open.stealth.si:80/announce',
-        'udp://open.demonii.com:1337/announce',
-        'udp://tracker.srv00.com:6969/announce'
-    ].map(t => `tr=${encodeURIComponent(t)}`).join('&');
+        const trackers = [
+            'udp://tracker.opentrackr.org:1337/announce',
+            'udp://tracker.torrent.eu.org:451/announce',
+            'udp://tracker.dler.org:6969/announce',
+            'udp://open.stealth.si:80/announce',
+            'udp://open.demonii.com:1337/announce',
+            'udp://tracker.srv00.com:6969/announce'
+        ].map(t => `tr=${encodeURIComponent(t)}`).join('&');
 
-    async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '') {
-        const url = new URL(`${BASE_URL}/list_movies.json`);
-        url.searchParams.append('page', page);
-        if (query) url.searchParams.append('query_term', query);
-        if (genre) url.searchParams.append('genre', genre);
-        if (sort) url.searchParams.append('sort_by', sort);
-        if (quality) url.searchParams.append('quality', quality);
+        async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '') {
+            const url = new URL(`${BASE_URL}/list_movies.json`);
+            url.searchParams.append('page', page);
+            if (query) url.searchParams.append('query_term', query);
+            if (genre) url.searchParams.append('genre', genre);
+            if (sort) url.searchParams.append('sort_by', sort);
+            if (quality) url.searchParams.append('quality', quality);
 
-        const res = await fetch(url);
-        const json = await res.json();
-        return json.data;
-    }
-
-    async function getMovieDetails(id) {
-        const url = new URL(`${BASE_URL}/movie_details.json`);
-        url.searchParams.append('movie_id', id);
-
-        const res = await fetch(url);
-        const json = await res.json();
-        return json.data.movie;
-    }
-
-    function getMagnetUrl(hash, title) {
-        return `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(title)}&${trackers}`;
-    }
-
-    // — App —
-    let currentPage = 1;
-    let currentQuery = '';
-    let currentGenre = '';
-    let currentSort = 'date_added';
-    let currentQuality = '';
-    let loading = false;
-    let hasMore = true;
-
-    const moviesEl = document.getElementById('movies');
-    const searchInput = document.getElementById('searchInput');
-    const sentinel = document.getElementById('sentinel');
-    const modal = document.getElementById('modal');
-    const modalImg = document.getElementById('modalImg');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMeta = document.getElementById('modalMeta');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalLinks = document.getElementById('modalLinks');
-    const modalGenres = document.getElementById('modalGenres');
-
-
-    async function loadMovies(reset = false) {
-        if (loading) return;
-        if (!reset && !hasMore) return;
-        loading = true;
-        if (reset) { moviesEl.innerHTML = ''; currentPage = 1; hasMore = true; }
-        sentinel.textContent = 'Loading...';
-        try {
-            const data = await listMovies(currentPage, currentQuery, currentGenre, currentSort, currentQuality);
-            if (data.movies) renderMovies(data.movies);
-
-            hasMore = data.movie_count > currentPage * data.limit;
-            sentinel.textContent = hasMore ? '' : 'No more movies';
-        } catch (e) {
-            console.error('Failed to load movies', e);
-            sentinel.textContent = 'Error loading movies';
+            const res = await fetch(url);
+            const json = await res.json();
+            return json.data;
         }
-        loading = false;
-    }
 
-    function renderMovies(movies) {
-        const html = movies.map(m => `
-            <div class="movie-card" onclick="openDetails(${m.id})">
+        async function getMovieDetails(id) {
+            const url = new URL(`${BASE_URL}/movie_details.json`);
+            url.searchParams.append('movie_id', id);
+
+            const res = await fetch(url);
+            const json = await res.json();
+            return json.data.movie;
+        }
+
+        function getMagnetUrl(hash, title) {
+            return `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(title)}&${trackers}`;
+        }
+
+        // — App —
+        let currentPage = 1;
+        let currentQuery = '';
+        let currentGenre = '';
+        let currentSort = 'year';
+        let currentQuality = '';
+        let loading = false;
+        let hasMore = true;
+
+        const moviesEl = document.getElementById('movies');
+        const searchInput = document.getElementById('searchInput');
+        const sentinel = document.getElementById('sentinel');
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modalImg');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMeta = document.getElementById('modalMeta');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalLinks = document.getElementById('modalLinks');
+        const modalGenres = document.getElementById('modalGenres');
+
+
+        async function loadMovies(reset = false) {
+            if (loading) return;
+            if (!reset && !hasMore) return;
+            loading = true;
+            if (reset) {
+                moviesEl.innerHTML = '<div class="spinner spinner-large spinner-center"></div>';
+                currentPage = 1;
+                hasMore = true;
+            }
+            sentinel.innerHTML = '<div class="spinner"></div>';
+            try {
+                const data = await listMovies(currentPage, currentQuery, currentGenre, currentSort, currentQuality);
+                if (reset) moviesEl.innerHTML = ''; // clear the spinner
+                if (data.movies) renderMovies(data.movies);
+
+                hasMore = data.movie_count > currentPage * data.limit;
+                sentinel.textContent = hasMore ? '' : 'No more movies';
+            } catch (e) {
+                console.error('Failed to load movies', e);
+                sentinel.textContent = 'Error loading movies';
+            }
+            loading = false;
+        }
+
+        function renderMovies(movies) {
+            const html = movies.map(m => `
+            <div class="movie-card" onclick="openDetails(${m.id}, '${m.medium_cover_image}')">
                 <img src="${m.medium_cover_image}" alt="${m.title}" loading="lazy">
                 <span class="overlay-pill">${m.year}</span>
                 <div class="card-label">
@@ -524,85 +679,97 @@
                 </div>
             </div>
         `).join('');
-        moviesEl.insertAdjacentHTML('beforeend', html);
-    }
-
-    async function openDetails(id) {
-        modalTitle.textContent = 'Loading...';
-        modalImg.src = '';
-        modalMeta.textContent = '';
-        modalDesc.textContent = '';
-        modalLinks.innerHTML = '';
-        modalGenres.innerHTML = '';
-        modal.classList.add('active');
-
-        try {
-            const m = await getMovieDetails(id);
-            modalImg.src = m.medium_cover_image;
-            modalTitle.textContent = m.title_long;
-            modalMeta.textContent = `${m.rating}/10 · ${m.runtime} min · ${m.language.toUpperCase()} · ${m.mpa_rating || '—'}`;
-            modalDesc.textContent = m.description_full || m.description_intro || '';
-            modalGenres.innerHTML = (m.genres || []).map(g => `<span class="pill muted">${g}</span>`).join('');
-            modalLinks.innerHTML = m.torrents ? m.torrents.map(t => {
-                const magnet = getMagnetUrl(t.hash, m.title);
-                return `<a href="${magnet}" class="magnet-btn">${t.quality} · ${t.type} · ${t.size}</a>`;
-            }).join('') : '<p style="color:var(--color-ash)">No torrents.</p>';
-        } catch (e) {
-            console.error('Failed to load details', e);
-            modalTitle.textContent = 'Error loading details.';
+            moviesEl.insertAdjacentHTML('beforeend', html);
         }
-    }
 
-    document.getElementById('closeModal').onclick = () => modal.classList.remove('active');
-    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+        async function openDetails(id, coverUrl) {
+            modalTitle.innerHTML = '<div class="spinner"></div>';
+            modalImg.src = coverUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+            modalMeta.textContent = '';
+            modalDesc.textContent = '';
+            modalLinks.innerHTML = '';
+            modalGenres.innerHTML = '';
+            modal.classList.add('active');
 
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchInput._t);
-        searchInput._t = setTimeout(() => {
-            currentQuery = e.target.value;
-            loadMovies(true);
-        }, 500);
-    });
+            try {
+                const m = await getMovieDetails(id);
+                modalTitle.textContent = m.title_long;
+                modalMeta.textContent = `${m.rating}/10 · ${m.runtime} min · ${m.language.toUpperCase()} · ${m.mpa_rating || '—'}`;
+                modalDesc.textContent = m.description_full || m.description_intro || '';
+                modalGenres.innerHTML = (m.genres || []).map(g => `<span class="pill muted">${g}</span>`).join('');
+                modalLinks.innerHTML = m.torrents ? m.torrents.map(t => {
+                    const magnet = getMagnetUrl(t.hash, m.title);
+                    return `<a href="${magnet}" class="magnet-btn">${t.quality} · ${t.type} · ${t.size}</a>`;
+                }).join('') : '<p style="color:var(--color-ash)">No torrents.</p>';
+            } catch (e) {
+                console.error('Failed to load details', e);
+                modalTitle.textContent = 'Error loading details.';
+            }
+        }
 
-    function setupPillGroup(containerId, callback) {
-        document.getElementById(containerId).addEventListener('click', (e) => {
-            const pill = e.target.closest('.pill');
-            if (!pill) return;
-            pill.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            callback(pill);
+        document.getElementById('closeModal').onclick = () => modal.classList.remove('active');
+        modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchInput._t);
+            searchInput._t = setTimeout(() => {
+                currentQuery = e.target.value;
+                loadMovies(true);
+            }, 500);
         });
-    }
 
-    setupPillGroup('filters', (pill) => { currentGenre = pill.dataset.genre; loadMovies(true); });
-    setupPillGroup('sortPills', (pill) => { currentSort = pill.dataset.sort; loadMovies(true); });
-    setupPillGroup('qualityPills', (pill) => { currentQuality = pill.dataset.quality; loadMovies(true); });
-
-    document.getElementById('collapseGenre').addEventListener('click', function() {
-        const grid = document.getElementById('filters');
-        grid.classList.toggle('collapsed');
-        this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
-    });
-
-    document.getElementById('navBrowse').onclick = (e) => { e.preventDefault(); currentSort = 'date_added'; loadMovies(true); };
-    document.getElementById('navTop').onclick = (e) => {
-        e.preventDefault();
-        currentSort = 'rating';
-        document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
-        document.querySelector('#sortPills .pill[data-sort="rating"]').classList.add('active');
-        loadMovies(true);
-    };
-
-    // Infinite scroll
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !loading && hasMore) {
-            currentPage++;
-            loadMovies();
+        function setupPillGroup(containerId, callback) {
+            document.getElementById(containerId).addEventListener('click', (e) => {
+                const pill = e.target.closest('.pill');
+                if (!pill) return;
+                pill.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                callback(pill);
+            });
         }
-    }, { root: document.querySelector('.content'), rootMargin: '400px' });
-    observer.observe(sentinel);
 
-    loadMovies();
+        setupPillGroup('filters', (pill) => { currentGenre = pill.dataset.genre; loadMovies(true); });
+        setupPillGroup('sortPills', (pill) => { currentSort = pill.dataset.sort; loadMovies(true); });
+        setupPillGroup('qualityPills', (pill) => { currentQuality = pill.dataset.quality; loadMovies(true); });
+
+        document.getElementById('collapseGenre').addEventListener('click', function () {
+            const grid = document.getElementById('filters');
+            grid.classList.toggle('collapsed');
+            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        document.getElementById('collapseSort').addEventListener('click', function () {
+            const grid = document.getElementById('sortPills');
+            grid.classList.toggle('collapsed');
+            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        document.getElementById('collapseQuality').addEventListener('click', function () {
+            const grid = document.getElementById('qualityPills');
+            grid.classList.toggle('collapsed');
+            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
+        });
+
+        document.getElementById('navBrowse').onclick = (e) => { e.preventDefault(); currentSort = 'date_added'; loadMovies(true); };
+        document.getElementById('navTop').onclick = (e) => {
+            e.preventDefault();
+            currentSort = 'rating';
+            document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
+            document.querySelector('#sortPills .pill[data-sort="rating"]').classList.add('active');
+            loadMovies(true);
+        };
+
+        // Infinite scroll
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !loading && hasMore) {
+                currentPage++;
+                loadMovies();
+            }
+        }, { rootMargin: '400px' });
+        observer.observe(sentinel);
+
+        loadMovies();
     </script>
 </body>
+
 </html>
