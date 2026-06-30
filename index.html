@@ -64,12 +64,14 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex-wrap: wrap;
         }
 
         .nav-pills {
             display: flex;
             gap: 7px;
             flex-shrink: 0;
+            flex-wrap: wrap;
         }
 
         .search-pill {
@@ -378,6 +380,38 @@
             line-height: 1;
         }
 
+        /* — Wishlist View — */
+        #wishlistView {
+            display: none;
+            flex-direction: column;
+            padding: 40px;
+            gap: 16px;
+        }
+
+        .wishlist-item {
+            font-size: 8vw;
+            font-weight: 400;
+            line-height: 0.95;
+            letter-spacing: -2px;
+            color: var(--color-bone);
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            word-wrap: break-word;
+        }
+
+        .wishlist-item:hover {
+            opacity: 0.7;
+        }
+
+        .wishlist-item sup {
+            font-size: 16px;
+            font-family: var(--font-victor-serif);
+            vertical-align: super;
+            margin-left: 12px;
+            color: var(--color-ash);
+            letter-spacing: 0;
+        }
 
 
         /* — Scrollbar — */
@@ -501,8 +535,9 @@
             <div class="sidebar-header">
                 <input type="text" class="search-pill" id="searchInput" placeholder="Search title, actor, director...">
                 <div class="nav-pills">
-                    <a class="pill" href="#" id="navBrowse">Browse</a>
-                    <a class="pill" href="#" id="navTop">Top Rated</a>
+                    <button class="pill active" id="navBrowse">Browse</button>
+                    <button class="pill" id="navTop">Top Rated</button>
+                    <button class="pill" id="navLiked">Liked</button>
                 </div>
             </div>
 
@@ -563,6 +598,7 @@
         <!-- Right content: movie grid -->
         <main class="content">
             <div id="movies"></div>
+            <div id="wishlistView"></div>
             <div id="sentinel" style="padding:20px;text-align:center;color:var(--color-ash);font-size:14px;"></div>
         </main>
     </div>
@@ -575,7 +611,10 @@
             <span class="close-btn" id="closeModal">&times;</span>
             <img id="modalImg" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
             <div class="modal-details">
-                <h2 id="modalTitle"></h2>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <h2 id="modalTitle"></h2>
+                    <button class="pill" id="likeBtn" style="margin-left: 16px; min-width: 80px;">Like</button>
+                </div>
                 <div class="modal-genres" id="modalGenres"></div>
                 <p class="modal-meta" id="modalMeta"></p>
                 <p class="modal-desc" id="modalDesc"></p>
@@ -642,6 +681,11 @@
         const modalDesc = document.getElementById('modalDesc');
         const modalLinks = document.getElementById('modalLinks');
         const modalGenres = document.getElementById('modalGenres');
+        const likeBtn = document.getElementById('likeBtn');
+        const wishlistView = document.getElementById('wishlistView');
+
+        let likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+        let currentModalMovie = null;
 
 
         async function loadMovies(reset = false) {
@@ -691,19 +735,23 @@
             modalGenres.innerHTML = '';
             modal.classList.add('active');
 
+            // Check if liked early using just the ID
+            const isLiked = likedMovies.some(m => m.id === id);
+            likeBtn.textContent = isLiked ? 'Liked' : 'Like';
+            if (isLiked) likeBtn.classList.add('active'); else likeBtn.classList.remove('active');
+
             try {
                 const m = await getMovieDetails(id);
+                currentModalMovie = m;
                 modalTitle.textContent = m.title_long;
                 modalMeta.textContent = `${m.rating}/10 · ${m.runtime} min · ${m.language.toUpperCase()} · ${m.mpa_rating || '—'}`;
                 modalDesc.textContent = m.description_full || m.description_intro || '';
-                modalGenres.innerHTML = (m.genres || []).map(g => `<span class="pill muted">${g}</span>`).join('');
-                modalLinks.innerHTML = m.torrents ? m.torrents.map(t => {
-                    const magnet = getMagnetUrl(t.hash, m.title);
-                    return `<a href="${magnet}" class="magnet-btn">${t.quality} · ${t.type} · ${t.size}</a>`;
-                }).join('') : '<p style="color:var(--color-ash)">No torrents.</p>';
+                modalGenres.innerHTML = m.genres ? m.genres.map(g => `<span class="pill">${g}</span>`).join('') : '';
+                modalLinks.innerHTML = m.torrents ? m.torrents.map(t =>
+                    `<a href="${getMagnetUrl(t.hash, m.title)}" class="pill" style="color:var(--color-bone); border-color:var(--color-bone);">${t.quality} · ${t.type} · ${t.size}</a>`
+                ).join('') : 'No torrents available';
             } catch (e) {
-                console.error('Failed to load details', e);
-                modalTitle.textContent = 'Error loading details.';
+                modalTitle.textContent = 'Error loading details';
             }
         }
 
@@ -732,31 +780,81 @@
         setupPillGroup('sortPills', (pill) => { currentSort = pill.dataset.sort; loadMovies(true); });
         setupPillGroup('qualityPills', (pill) => { currentQuality = pill.dataset.quality; loadMovies(true); });
 
-        document.getElementById('collapseGenre').addEventListener('click', function () {
-            const grid = document.getElementById('filters');
-            grid.classList.toggle('collapsed');
-            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
-        });
+        function setupCollapse(btnId, gridId) {
+            document.getElementById(btnId).addEventListener('click', function () {
+                const grid = document.getElementById(gridId);
+                grid.classList.toggle('collapsed');
+                this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
+            });
+        }
 
-        document.getElementById('collapseSort').addEventListener('click', function () {
-            const grid = document.getElementById('sortPills');
-            grid.classList.toggle('collapsed');
-            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
-        });
+        setupCollapse('collapseGenre', 'filters');
+        setupCollapse('collapseSort', 'sortPills');
+        setupCollapse('collapseQuality', 'qualityPills');
 
-        document.getElementById('collapseQuality').addEventListener('click', function () {
-            const grid = document.getElementById('qualityPills');
-            grid.classList.toggle('collapsed');
-            this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
-        });
+        document.getElementById('navBrowse').onclick = (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            moviesEl.style.display = 'grid';
+            sentinel.style.display = 'block';
+            wishlistView.style.display = 'none';
+            currentSort = 'date_added';
+            loadMovies(true);
+        };
 
-        document.getElementById('navBrowse').onclick = (e) => { e.preventDefault(); currentSort = 'date_added'; loadMovies(true); };
         document.getElementById('navTop').onclick = (e) => {
             e.preventDefault();
+            document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            moviesEl.style.display = 'grid';
+            sentinel.style.display = 'block';
+            wishlistView.style.display = 'none';
             currentSort = 'rating';
             document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
             document.querySelector('#sortPills .pill[data-sort="rating"]').classList.add('active');
             loadMovies(true);
+        };
+
+        document.getElementById('navLiked').onclick = (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            moviesEl.style.display = 'none';
+            sentinel.style.display = 'none';
+            wishlistView.style.display = 'flex';
+            renderWishlist();
+        };
+
+        function renderWishlist() {
+            if (likedMovies.length === 0) {
+                wishlistView.innerHTML = '<p style="color:var(--color-ash); font-size:24px;">No liked movies yet.</p>';
+                return;
+            }
+            wishlistView.innerHTML = likedMovies.map(m =>
+                `<a class="wishlist-item" onclick="openDetails(${m.id}, '${m.coverUrl}')">${m.title}<sup>${m.year}</sup></a>`
+            ).join('');
+        }
+
+        likeBtn.onclick = () => {
+            if (!currentModalMovie) return;
+            const index = likedMovies.findIndex(m => m.id === currentModalMovie.id);
+            if (index > -1) {
+                likedMovies.splice(index, 1);
+                likeBtn.textContent = 'Like';
+                likeBtn.classList.remove('active');
+            } else {
+                likedMovies.push({
+                    id: currentModalMovie.id,
+                    title: currentModalMovie.title_long || currentModalMovie.title,
+                    year: currentModalMovie.year,
+                    coverUrl: currentModalMovie.medium_cover_image
+                });
+                likeBtn.textContent = 'Liked';
+                likeBtn.classList.add('active');
+            }
+            localStorage.setItem('likedMovies', JSON.stringify(likedMovies));
+            if (wishlistView.style.display === 'flex') renderWishlist();
         };
 
         // Infinite scroll
