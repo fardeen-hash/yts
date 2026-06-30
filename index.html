@@ -300,8 +300,8 @@
 
         .close-btn {
             position: absolute;
-            top: 12px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             cursor: pointer;
             font-size: 28px;
             color: var(--color-ash);
@@ -611,9 +611,10 @@
             <span class="close-btn" id="closeModal">&times;</span>
             <img id="modalImg" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
             <div class="modal-details">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <h2 id="modalTitle"></h2>
-                    <button class="pill" id="likeBtn" style="margin-left: 16px; min-width: 80px;">Like</button>
+                <div
+                    style="display:flex; justify-content:space-between; align-items:flex-start; padding-right: 40px; margin-bottom: 13px;">
+                    <h2 id="modalTitle" style="margin-bottom: 0;"></h2>
+                    <button class="pill" id="likeBtn" style="margin-top: 2px; flex-shrink: 0;">Like</button>
                 </div>
                 <div class="modal-genres" id="modalGenres"></div>
                 <p class="modal-meta" id="modalMeta"></p>
@@ -831,9 +832,10 @@
                 wishlistView.innerHTML = '<p style="color:var(--color-ash); font-size:24px;">No liked movies yet.</p>';
                 return;
             }
-            wishlistView.innerHTML = likedMovies.map(m =>
-                `<a class="wishlist-item" onclick="openDetails(${m.id}, '${m.coverUrl}')">${m.title}<sup>${m.year}</sup></a>`
-            ).join('');
+            wishlistView.innerHTML = likedMovies.map(m => {
+                const cleanTitle = (m.title || '').replace(/\s*\(\d{4}\)$/, '');
+                return `<a class="wishlist-item" onclick="openDetails(${m.id}, '${m.coverUrl}')">${cleanTitle}<sup>${m.year}</sup></a>`;
+            }).join('');
         }
 
         likeBtn.onclick = () => {
@@ -846,7 +848,7 @@
             } else {
                 likedMovies.push({
                     id: currentModalMovie.id,
-                    title: currentModalMovie.title_long || currentModalMovie.title,
+                    title: currentModalMovie.title,
                     year: currentModalMovie.year,
                     coverUrl: currentModalMovie.medium_cover_image
                 });
