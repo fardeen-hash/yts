@@ -637,16 +637,23 @@
             'udp://tracker.srv00.com:6969/announce'
         ].map(t => `tr=${encodeURIComponent(t)}`).join('&');
 
-        async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '') {
+        const apiCache = new Map();
+
+        async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '', minRating = 0) {
             const url = new URL(`${BASE_URL}/list_movies.json`);
             url.searchParams.append('page', page);
             if (query) url.searchParams.append('query_term', query);
             if (genre) url.searchParams.append('genre', genre);
             if (sort) url.searchParams.append('sort_by', sort);
             if (quality) url.searchParams.append('quality', quality);
+            if (minRating > 0) url.searchParams.append('minimum_rating', minRating);
+
+            const cacheKey = url.toString();
+            if (apiCache.has(cacheKey)) return apiCache.get(cacheKey);
 
             const res = await fetch(url);
             const json = await res.json();
+            apiCache.set(cacheKey, json.data);
             return json.data;
         }
 
@@ -654,8 +661,12 @@
             const url = new URL(`${BASE_URL}/movie_details.json`);
             url.searchParams.append('movie_id', id);
 
+            const cacheKey = url.toString();
+            if (apiCache.has(cacheKey)) return apiCache.get(cacheKey);
+
             const res = await fetch(url);
             const json = await res.json();
+            apiCache.set(cacheKey, json.data.movie);
             return json.data.movie;
         }
 
@@ -669,6 +680,7 @@
         let currentGenre = '';
         let currentSort = 'year';
         let currentQuality = '';
+        let currentMinRating = 0;
         let loading = false;
         let hasMore = true;
 
@@ -700,7 +712,7 @@
             }
             sentinel.innerHTML = '<div class="spinner"></div>';
             try {
-                const data = await listMovies(currentPage, currentQuery, currentGenre, currentSort, currentQuality);
+                const data = await listMovies(currentPage, currentQuery, currentGenre, currentSort, currentQuality, currentMinRating);
                 if (reset) moviesEl.innerHTML = ''; // clear the spinner
                 if (data.movies) renderMovies(data.movies);
 
@@ -801,6 +813,21 @@
             sentinel.style.display = 'block';
             wishlistView.style.display = 'none';
             currentSort = 'date_added';
+            currentMinRating = 0;
+            loadMovies(true);
+        };
+
+        document.getElementById('navFeatured').onclick = (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
+            e.target.classList.add('active');
+            moviesEl.style.display = 'grid';
+            sentinel.style.display = 'block';
+            wishlistView.style.display = 'none';
+            currentSort = 'date_added';
+            currentMinRating = 7;
+            document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
+            document.querySelector('#sortPills .pill[data-sort="date_added"]').classList.add('active');
             loadMovies(true);
         };
 
@@ -812,6 +839,7 @@
             sentinel.style.display = 'block';
             wishlistView.style.display = 'none';
             currentSort = 'rating';
+            currentMinRating = 0;
             document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
             document.querySelector('#sortPills .pill[data-sort="rating"]').classList.add('active');
             loadMovies(true);
