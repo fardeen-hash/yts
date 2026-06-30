@@ -34,7 +34,7 @@
         /* — Main split layout — */
         .layout {
             display: flex;
-            height: calc(100vh - 40px); /* minus footer */
+            height: 100vh;
         }
 
         /* — Left sidebar / control column — */
@@ -171,24 +171,7 @@
             gap: 7px;
         }
 
-        /* — Info / Contact bottom — */
-        .sidebar-bottom {
-            padding: 16px 24px;
-            margin-top: auto;
-        }
-        .sidebar-bottom h2 {
-            font-size: 48px;
-            font-weight: 400;
-            line-height: 1;
-            margin-bottom: 12px;
-        }
-        .sidebar-bottom p {
-            font-family: var(--font-victor-serif);
-            font-style: italic;
-            color: var(--color-ash);
-            font-size: 14px;
-            line-height: 1.4;
-        }
+
 
         /* — Right content: movie grid — */
         .content {
@@ -321,41 +304,41 @@
             text-decoration: none; line-height: 1;
         }
 
-        /* — Footer info bar — */
-        footer {
-            height: 40px;
-            border-top: 1px solid var(--color-bone);
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            font-size: 13px;
-            color: var(--color-ash);
-            gap: 0;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        footer span { padding: 0 12px; }
-        footer span:not(:last-child) { border-right: 1px solid var(--color-ash); }
-        footer span:first-child { padding-left: 0; }
+
 
         /* — Scrollbar — */
         .sidebar::-webkit-scrollbar, .content::-webkit-scrollbar { width: 0; }
 
         /* — Mobile — */
         @media (max-width: 768px) {
-            .layout { flex-direction: column; height: auto; }
             body { overflow: auto; height: auto; }
+            .layout { flex-direction: column; height: auto; }
             .sidebar {
                 width: 100%; max-width: 100%; min-width: 0;
                 border-right: none;
                 border-bottom: 1px solid var(--color-bone);
+                overflow-y: visible;
             }
             .brand { font-size: 36px; }
-            .section-head h2 { font-size: 32px; }
-            .sidebar-bottom h2 { font-size: 32px; }
+            .section-head h2 { font-size: 28px; }
+            .section-head { padding: 12px 16px 8px; }
+            .filter-grid { padding: 0 16px 12px; }
+            .sidebar-section { padding: 12px 16px; }
+            .sidebar-section h3 { font-size: 20px; margin-bottom: 8px; }
+            .sidebar-header { padding: 16px; }
+            .search-section { padding: 12px 16px; }
+            .pill { font-size: 13px; padding: 6px 11px; }
             .content { overflow: visible; }
+            #movies { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .movie-card img { height: 220px; }
+            .movie-card .card-label { padding: 30px 8px 8px; }
+            .movie-card .card-label h3 { font-size: 13px; }
+            .movie-card .card-label p { font-size: 11px; }
+            .movie-card .overlay-pill { font-size: 11px; padding: 4px 10px; }
             #modalImg { width: 100%; min-height: 260px; }
-            .modal-content { flex-direction: column; }
+            .modal-content { flex-direction: column; width: 96%; }
+            .modal-details { padding: 16px; }
+            .modal-details h2 { font-size: 24px; }
         }
     </style>
 </head>
@@ -424,10 +407,7 @@
                 </div>
             </div>
 
-            <div class="sidebar-bottom">
-                <h2>About</h2>
-                <p>Browse and download movies via magnet links. No account required. Data from the YTS API.</p>
-            </div>
+
         </aside>
 
         <!-- Right content: movie grid -->
@@ -437,13 +417,7 @@
         </main>
     </div>
 
-    <!-- Footer info bar -->
-    <footer>
-        <span>YTS Minimal</span>
-        <span>Browse &amp; Download</span>
-        <span id="movieCount">—</span>
-        <span>API v2</span>
-    </footer>
+
 
     <!-- Modal -->
     <div id="modal">
@@ -460,7 +434,175 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
-    <script src="app.js"></script>
+    <script>
+    // — API —
+    const BASE_URL = 'https://movies-api.accel.li/api/v2';
+
+    const trackers = [
+        'udp://tracker.opentrackr.org:1337/announce',
+        'udp://tracker.torrent.eu.org:451/announce',
+        'udp://tracker.dler.org:6969/announce',
+        'udp://open.stealth.si:80/announce',
+        'udp://open.demonii.com:1337/announce',
+        'udp://tracker.srv00.com:6969/announce'
+    ].map(t => `tr=${encodeURIComponent(t)}`).join('&');
+
+    async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '') {
+        const url = new URL(`${BASE_URL}/list_movies.json`);
+        url.searchParams.append('page', page);
+        if (query) url.searchParams.append('query_term', query);
+        if (genre) url.searchParams.append('genre', genre);
+        if (sort) url.searchParams.append('sort_by', sort);
+        if (quality) url.searchParams.append('quality', quality);
+
+        const res = await fetch(url);
+        const json = await res.json();
+        return json.data;
+    }
+
+    async function getMovieDetails(id) {
+        const url = new URL(`${BASE_URL}/movie_details.json`);
+        url.searchParams.append('movie_id', id);
+
+        const res = await fetch(url);
+        const json = await res.json();
+        return json.data.movie;
+    }
+
+    function getMagnetUrl(hash, title) {
+        return `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(title)}&${trackers}`;
+    }
+
+    // — App —
+    let currentPage = 1;
+    let currentQuery = '';
+    let currentGenre = '';
+    let currentSort = 'date_added';
+    let currentQuality = '';
+    let loading = false;
+    let hasMore = true;
+
+    const moviesEl = document.getElementById('movies');
+    const searchInput = document.getElementById('searchInput');
+    const sentinel = document.getElementById('sentinel');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalLinks = document.getElementById('modalLinks');
+    const modalGenres = document.getElementById('modalGenres');
+
+
+    async function loadMovies(reset = false) {
+        if (loading) return;
+        if (!reset && !hasMore) return;
+        loading = true;
+        if (reset) { moviesEl.innerHTML = ''; currentPage = 1; hasMore = true; }
+        sentinel.textContent = 'Loading...';
+        try {
+            const data = await listMovies(currentPage, currentQuery, currentGenre, currentSort, currentQuality);
+            if (data.movies) renderMovies(data.movies);
+
+            hasMore = data.movie_count > currentPage * data.limit;
+            sentinel.textContent = hasMore ? '' : 'No more movies';
+        } catch (e) {
+            console.error('Failed to load movies', e);
+            sentinel.textContent = 'Error loading movies';
+        }
+        loading = false;
+    }
+
+    function renderMovies(movies) {
+        const html = movies.map(m => `
+            <div class="movie-card" onclick="openDetails(${m.id})">
+                <img src="${m.medium_cover_image}" alt="${m.title}" loading="lazy">
+                <span class="overlay-pill">${m.year}</span>
+                <div class="card-label">
+                    <h3>${m.title}</h3>
+                    <p>${m.rating}/10</p>
+                </div>
+            </div>
+        `).join('');
+        moviesEl.insertAdjacentHTML('beforeend', html);
+    }
+
+    async function openDetails(id) {
+        modalTitle.textContent = 'Loading...';
+        modalImg.src = '';
+        modalMeta.textContent = '';
+        modalDesc.textContent = '';
+        modalLinks.innerHTML = '';
+        modalGenres.innerHTML = '';
+        modal.classList.add('active');
+
+        try {
+            const m = await getMovieDetails(id);
+            modalImg.src = m.medium_cover_image;
+            modalTitle.textContent = m.title_long;
+            modalMeta.textContent = `${m.rating}/10 · ${m.runtime} min · ${m.language.toUpperCase()} · ${m.mpa_rating || '—'}`;
+            modalDesc.textContent = m.description_full || m.description_intro || '';
+            modalGenres.innerHTML = (m.genres || []).map(g => `<span class="pill muted">${g}</span>`).join('');
+            modalLinks.innerHTML = m.torrents ? m.torrents.map(t => {
+                const magnet = getMagnetUrl(t.hash, m.title);
+                return `<a href="${magnet}" class="magnet-btn">${t.quality} · ${t.type} · ${t.size}</a>`;
+            }).join('') : '<p style="color:var(--color-ash)">No torrents.</p>';
+        } catch (e) {
+            console.error('Failed to load details', e);
+            modalTitle.textContent = 'Error loading details.';
+        }
+    }
+
+    document.getElementById('closeModal').onclick = () => modal.classList.remove('active');
+    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchInput._t);
+        searchInput._t = setTimeout(() => {
+            currentQuery = e.target.value;
+            loadMovies(true);
+        }, 500);
+    });
+
+    function setupPillGroup(containerId, callback) {
+        document.getElementById(containerId).addEventListener('click', (e) => {
+            const pill = e.target.closest('.pill');
+            if (!pill) return;
+            pill.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            callback(pill);
+        });
+    }
+
+    setupPillGroup('filters', (pill) => { currentGenre = pill.dataset.genre; loadMovies(true); });
+    setupPillGroup('sortPills', (pill) => { currentSort = pill.dataset.sort; loadMovies(true); });
+    setupPillGroup('qualityPills', (pill) => { currentQuality = pill.dataset.quality; loadMovies(true); });
+
+    document.getElementById('collapseGenre').addEventListener('click', function() {
+        const grid = document.getElementById('filters');
+        grid.classList.toggle('collapsed');
+        this.textContent = grid.classList.contains('collapsed') ? '+' : '−';
+    });
+
+    document.getElementById('navBrowse').onclick = (e) => { e.preventDefault(); currentSort = 'date_added'; loadMovies(true); };
+    document.getElementById('navTop').onclick = (e) => {
+        e.preventDefault();
+        currentSort = 'rating';
+        document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
+        document.querySelector('#sortPills .pill[data-sort="rating"]').classList.add('active');
+        loadMovies(true);
+    };
+
+    // Infinite scroll
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !loading && hasMore) {
+            currentPage++;
+            loadMovies();
+        }
+    }, { root: document.querySelector('.content'), rootMargin: '400px' });
+    observer.observe(sentinel);
+
+    loadMovies();
+    </script>
 </body>
 </html>
