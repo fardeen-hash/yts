@@ -1,4 +1,4 @@
-// ponytail: minimalist fetch wrappers, no unnecessary abstractions
+// ponytail: minimalist fetch wrappers
 const BASE_URL = 'https://movies-api.accel.li/api/v2';
 
 const trackers = [
@@ -10,11 +10,14 @@ const trackers = [
     'udp://tracker.srv00.com:6969/announce'
 ].map(t => `tr=${encodeURIComponent(t)}`).join('&');
 
-async function listMovies(page = 1, query = '') {
+async function listMovies(page = 1, query = '', genre = '', sort = 'date_added', quality = '') {
     const url = new URL(`${BASE_URL}/list_movies.json`);
     url.searchParams.append('page', page);
     if (query) url.searchParams.append('query_term', query);
-    
+    if (genre) url.searchParams.append('genre', genre);
+    if (sort) url.searchParams.append('sort_by', sort);
+    if (quality) url.searchParams.append('quality', quality);
+
     const res = await fetch(url);
     const json = await res.json();
     return json.data;
@@ -23,7 +26,7 @@ async function listMovies(page = 1, query = '') {
 async function getMovieDetails(id) {
     const url = new URL(`${BASE_URL}/movie_details.json`);
     url.searchParams.append('movie_id', id);
-    
+
     const res = await fetch(url);
     const json = await res.json();
     return json.data.movie;

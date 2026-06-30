@@ -3,110 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YTS Minimal Browser</title>
+    <title>YTS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Source+Serif+4:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     <style>
-        /* ponytail: minimal viable modern dark theme */
+        /* ponytail: Bareis + Nicolaus split-screen monochrome system */
         :root {
-            --bg: #121212; --surface: #1e1e1e; --primary: #4caf50;
-            --text: #ffffff; --text-muted: #b3b3b3;
+            --color-obsidian: #000000;
+            --color-bone: #ffffff;
+            --color-ash: #a9a9a9;
+            --font-lausanne: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            --font-victor-serif: 'Source Serif 4', ui-serif, Georgia, serif;
+            --radius-full: 120px;
         }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg); color: var(--text);
+            background: var(--color-obsidian);
+            color: var(--color-bone);
+            font-family: var(--font-lausanne);
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.2;
+            height: 100vh;
+            overflow: hidden;
         }
-        header {
-            padding: 1rem 2rem; background: var(--surface);
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 10;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+
+        /* — Main split layout — */
+        .layout {
+            display: flex;
+            height: calc(100vh - 40px); /* minus footer */
         }
-        h1 { margin: 0; color: var(--primary); font-size: 1.8rem; letter-spacing: 1px;}
-        input {
-            padding: 0.8rem 1.5rem; border-radius: 20px; border: none;
-            background: #2a2a2a; color: white; width: 100%; max-width: 400px;
-            font-size: 1rem; outline: none; transition: background 0.3s;
+
+        /* — Left sidebar / control column — */
+        .sidebar {
+            width: 40%;
+            min-width: 320px;
+            max-width: 480px;
+            border-right: 1px solid var(--color-bone);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
-        input:focus { background: #333; }
-        
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-bone);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .brand {
+            font-size: 64px;
+            line-height: 1;
+            font-weight: 400;
+            letter-spacing: -2px;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 7px;
+            padding-top: 8px;
+        }
+
+        /* — Search section — */
+        .search-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--color-bone);
+        }
+        .search-pill {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            background: transparent;
+            color: var(--color-bone);
+            font-family: var(--font-lausanne);
+            font-size: 16px;
+            font-weight: 400;
+            outline: none;
+        }
+        .search-pill::placeholder { color: var(--color-ash); }
+
+        /* — Section headings — */
+        .section-head {
+            padding: 16px 24px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-head h2 {
+            font-size: 48px;
+            font-weight: 400;
+            line-height: 1;
+        }
+        .collapse-btn {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            background: transparent;
+            color: var(--color-bone);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+
+        /* — Genre filter grid — */
+        .filter-grid {
+            padding: 0 24px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            border-bottom: 1px solid var(--color-bone);
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            max-height: 600px;
+        }
+        .filter-grid.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 13px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            background: transparent;
+            color: var(--color-bone);
+            font-family: var(--font-lausanne);
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+            text-decoration: none;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .pill.active {
+            background: var(--color-bone);
+            color: var(--color-obsidian);
+        }
+        .pill.muted {
+            border-color: var(--color-ash);
+            color: var(--color-ash);
+        }
+
+        /* — Sort & Quality sections — */
+        .sidebar-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--color-bone);
+        }
+        .sidebar-section h3 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        /* — Info / Contact bottom — */
+        .sidebar-bottom {
+            padding: 16px 24px;
+            margin-top: auto;
+        }
+        .sidebar-bottom h2 {
+            font-size: 48px;
+            font-weight: 400;
+            line-height: 1;
+            margin-bottom: 12px;
+        }
+        .sidebar-bottom p {
+            font-family: var(--font-victor-serif);
+            font-style: italic;
+            color: var(--color-ash);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* — Right content: movie grid — */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
         #movies {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 2rem; padding: 2rem; max-width: 1400px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0;
+            flex: 1;
         }
+
         .movie-card {
-            background: var(--surface); border-radius: 12px; overflow: hidden;
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
         }
-        .movie-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .movie-card img { width: 100%; height: 330px; object-fit: cover; display: block; }
-        .movie-card .info { padding: 1rem; }
-        .movie-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-card p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
-        
-        /* Modal */
+        .movie-card img {
+            width: 100%; height: 340px;
+            object-fit: cover; display: block;
+            border-radius: 0;
+            transition: opacity 0.2s;
+        }
+        .movie-card:hover img { opacity: 0.75; }
+
+        .movie-card .overlay-pill {
+            position: absolute; top: 10px; left: 10px;
+            padding: 5px 13px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            background: rgba(0,0,0,0.5);
+            color: var(--color-bone);
+            font-size: 13px; line-height: 1;
+            pointer-events: none;
+        }
+        .movie-card .card-label {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 40px 12px 12px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+        }
+        .movie-card .card-label h3 {
+            font-size: 15px; font-weight: 400;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+        .movie-card .card-label p {
+            font-family: var(--font-victor-serif);
+            font-style: italic;
+            font-size: 13px; color: var(--color-ash);
+        }
+
+
+
+        /* — Modal — */
         #modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 20; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92); z-index: 20;
+            justify-content: center; align-items: center;
         }
-        #modal.active { display: flex; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
+        #modal.active { display: flex; }
+
         .modal-content {
-            background: var(--surface); padding: 2.5rem; border-radius: 16px;
-            max-width: 900px; width: 90%; max-height: 90vh; overflow-y: auto;
-            display: flex; gap: 2.5rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            background: var(--color-obsidian);
+            border: 1px solid var(--color-bone);
+            max-width: 860px; width: 92%; max-height: 90vh;
+            overflow-y: auto;
+            display: flex; gap: 0;
+            position: relative;
         }
+
+        .close-btn {
+            position: absolute; top: 12px; right: 20px;
+            cursor: pointer; font-size: 28px; color: var(--color-ash);
+            z-index: 1; line-height: 1;
+        }
+
+        #modalImg {
+            width: 280px; min-height: 400px;
+            object-fit: cover; display: block;
+            border-radius: 0;
+        }
+
+        .modal-details {
+            flex: 1; padding: 24px;
+        }
+        .modal-details h2 {
+            font-size: 36px; font-weight: 400;
+            line-height: 1;
+            margin-bottom: 13px;
+        }
+        .modal-genres {
+            display: flex; flex-wrap: wrap; gap: 7px;
+            margin-bottom: 16px;
+        }
+        .modal-genres .pill {
+            font-size: 12px; padding: 5px 10px;
+            border-color: var(--color-ash);
+            color: var(--color-ash);
+        }
+        .modal-meta {
+            font-family: var(--font-victor-serif);
+            font-style: italic;
+            color: var(--color-ash);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .modal-desc {
+            font-size: 15px; line-height: 1.5;
+            color: var(--color-ash);
+            margin-bottom: 24px;
+        }
+        #modalLinks {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            padding-top: 13px;
+            border-top: 1px solid var(--color-bone);
+        }
+        .magnet-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-bone);
+            background: transparent;
+            color: var(--color-bone);
+            font-family: var(--font-lausanne);
+            font-size: 14px; font-weight: 400;
+            text-decoration: none; line-height: 1;
+        }
+
+        /* — Footer info bar — */
+        footer {
+            height: 40px;
+            border-top: 1px solid var(--color-bone);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--color-ash);
+            gap: 0;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        footer span { padding: 0 12px; }
+        footer span:not(:last-child) { border-right: 1px solid var(--color-ash); }
+        footer span:first-child { padding-left: 0; }
+
+        /* — Scrollbar — */
+        .sidebar::-webkit-scrollbar, .content::-webkit-scrollbar { width: 0; }
+
+        /* — Mobile — */
         @media (max-width: 768px) {
+            .layout { flex-direction: column; height: auto; }
+            body { overflow: auto; height: auto; }
+            .sidebar {
+                width: 100%; max-width: 100%; min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--color-bone);
+            }
+            .brand { font-size: 36px; }
+            .section-head h2 { font-size: 32px; }
+            .sidebar-bottom h2 { font-size: 32px; }
+            .content { overflow: visible; }
+            #modalImg { width: 100%; min-height: 260px; }
             .modal-content { flex-direction: column; }
         }
-        
-        .close-btn { 
-            position: absolute; top: 1rem; right: 1.5rem; cursor: pointer; 
-            font-size: 2rem; color: var(--text-muted); transition: color 0.2s;
-        }
-        .close-btn:hover { color: white; }
-        
-        .modal-img { width: 280px; border-radius: 12px; object-fit: cover; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
-        @media (max-width: 768px) { .modal-img { width: 100%; max-width: 300px; margin: 0 auto; } }
-        
-        .modal-details { flex: 1; }
-        .modal-details h2 { margin-top: 0; font-size: 2rem; color: var(--primary); }
-        .modal-details p { line-height: 1.6; font-size: 1.05rem; }
-        
-        .magnet-btn {
-            display: inline-block; padding: 0.8rem 1.5rem; background: var(--primary);
-            color: white; text-decoration: none; border-radius: 8px; margin-right: 1rem; margin-top: 1.5rem;
-            font-weight: bold; transition: background 0.2s, transform 0.1s;
-        }
-        .magnet-btn:hover { background: #45a049; transform: scale(1.05); }
-        .magnet-btn:active { transform: scale(0.95); }
-        
-        #loadMore {
-            display: block; margin: 0 auto 3rem; padding: 1rem 3rem; background: #333;
-            color: white; border: none; border-radius: 30px; cursor: pointer; font-size: 1.1rem;
-            transition: background 0.2s; font-weight: bold;
-        }
-        #loadMore:hover { background: #444; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>YTS Minimal</h1>
-        <input type="text" id="searchInput" placeholder="Search movies by title, actor, director...">
-    </header>
+    <div class="layout">
+        <!-- Left sidebar / control column -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="brand">YTS</span>
+                <div class="nav-pills">
+                    <a class="pill" href="#" id="navBrowse">Browse</a>
+                    <a class="pill" href="#" id="navTop">Top Rated</a>
+                </div>
+            </div>
 
-    <div id="movies"></div>
-    <button id="loadMore">Load More</button>
+            <div class="search-section">
+                <input type="text" class="search-pill" id="searchInput" placeholder="Search title, actor, director...">
+            </div>
 
+            <div class="section-head">
+                <h2>Genre</h2>
+                <button class="collapse-btn" id="collapseGenre" aria-label="Toggle genres">−</button>
+            </div>
+            <div class="filter-grid" id="filters">
+                <button class="pill active" data-genre="">Selected</button>
+                <button class="pill" data-genre="action">Action</button>
+                <button class="pill" data-genre="adventure">Adventure</button>
+                <button class="pill" data-genre="animation">Animation</button>
+                <button class="pill" data-genre="comedy">Comedy</button>
+                <button class="pill" data-genre="crime">Crime</button>
+                <button class="pill" data-genre="documentary">Documentary</button>
+                <button class="pill" data-genre="drama">Drama</button>
+                <button class="pill" data-genre="family">Family</button>
+                <button class="pill" data-genre="fantasy">Fantasy</button>
+                <button class="pill" data-genre="history">History</button>
+                <button class="pill" data-genre="horror">Horror</button>
+                <button class="pill" data-genre="music">Music</button>
+                <button class="pill" data-genre="mystery">Mystery</button>
+                <button class="pill" data-genre="romance">Romance</button>
+                <button class="pill" data-genre="sci-fi">Sci-Fi</button>
+                <button class="pill" data-genre="thriller">Thriller</button>
+                <button class="pill" data-genre="war">War</button>
+                <button class="pill" data-genre="western">Western</button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Sort</h3>
+                <div class="pill-row" id="sortPills">
+                    <button class="pill active" data-sort="date_added">Latest</button>
+                    <button class="pill" data-sort="rating">Rating</button>
+                    <button class="pill" data-sort="year">Year</button>
+                    <button class="pill" data-sort="title">Title</button>
+                    <button class="pill" data-sort="seeds">Seeds</button>
+                    <button class="pill" data-sort="download_count">Downloads</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Quality</h3>
+                <div class="pill-row" id="qualityPills">
+                    <button class="pill active" data-quality="">All</button>
+                    <button class="pill" data-quality="720p">720p</button>
+                    <button class="pill" data-quality="1080p">1080p</button>
+                    <button class="pill" data-quality="2160p">4K</button>
+                    <button class="pill" data-quality="3D">3D</button>
+                </div>
+            </div>
+
+            <div class="sidebar-bottom">
+                <h2>About</h2>
+                <p>Browse and download movies via magnet links. No account required. Data from the YTS API.</p>
+            </div>
+        </aside>
+
+        <!-- Right content: movie grid -->
+        <main class="content">
+            <div id="movies"></div>
+            <div id="sentinel" style="padding:20px;text-align:center;color:var(--color-ash);font-size:14px;"></div>
+        </main>
+    </div>
+
+    <!-- Footer info bar -->
+    <footer>
+        <span>YTS Minimal</span>
+        <span>Browse &amp; Download</span>
+        <span id="movieCount">—</span>
+        <span>API v2</span>
+    </footer>
+
+    <!-- Modal -->
     <div id="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModal">&times;</span>
-            <img class="modal-img" id="modalImg" src="" alt="Poster">
+            <img id="modalImg" src="" alt="Poster">
             <div class="modal-details">
                 <h2 id="modalTitle"></h2>
-                <p style="color: var(--text-muted); font-weight: bold;" id="modalMeta"></p>
-                <p id="modalDesc"></p>
+                <div class="modal-genres" id="modalGenres"></div>
+                <p class="modal-meta" id="modalMeta"></p>
+                <p class="modal-desc" id="modalDesc"></p>
                 <div id="modalLinks"></div>
             </div>
         </div>
