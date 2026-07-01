@@ -817,20 +817,6 @@
             loadMovies(true);
         };
 
-        document.getElementById('navFeatured').onclick = (e) => {
-            e.preventDefault();
-            document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
-            e.target.classList.add('active');
-            moviesEl.style.display = 'grid';
-            sentinel.style.display = 'block';
-            wishlistView.style.display = 'none';
-            currentSort = 'date_added';
-            currentMinRating = 7;
-            document.querySelectorAll('#sortPills .pill').forEach(p => p.classList.remove('active'));
-            document.querySelector('#sortPills .pill[data-sort="date_added"]').classList.add('active');
-            loadMovies(true);
-        };
-
         document.getElementById('navTop').onclick = (e) => {
             e.preventDefault();
             document.querySelectorAll('.nav-pills .pill').forEach(p => p.classList.remove('active'));
